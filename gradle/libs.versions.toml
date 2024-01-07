@@ -26,7 +26,7 @@ ktorClientSerialization = "2.3.6"
 ktorVersion = "2.3.6"
 lifecycleViewmodelKtx = "2.6.2"
 voyager = "1.0.0-rc10"
-material3 = "1.1.2"
+material = "1.5.4"
 
 [libraries]
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
@@ -76,7 +76,6 @@ androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-andr
 places = { group = "com.google.android.libraries.places", name = "places", version = "3.3.0" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }

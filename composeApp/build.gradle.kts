@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    kotlin("plugin.serialization") version "1.9.20"
 }
 
 kotlin {
@@ -40,6 +41,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             @OptIn(ExperimentalComposeLibrary::class)
@@ -55,6 +57,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json.v161)
             implementation(libs.kamel.image)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.jetbrains.kotlinx.serialization.json)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
