@@ -38,3 +38,23 @@ data class FirebaseSpecificError(
     val domain: String,
     val reason: String
 )
+@Serializable
+data class FirebaseResponseRegister(
+    val kind: String,
+    val idToken: String,
+    val email: String,
+    val refreshToken: String,
+    val expiresIn: String,
+    @SerialName("localId")val userId: String
+)
+@Serializable
+data class FirebaseRegisterRequest(
+    val email: String,
+    val password: String,
+    val returnSecureToken: Boolean
+
+)
+@Serializable
+data class UserResponse(
+    val name:String
+)
