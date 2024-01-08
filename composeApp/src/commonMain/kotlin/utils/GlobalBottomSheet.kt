@@ -32,6 +32,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import utils.Constants.LAPOULA
 import utils.Constants.MONCASH
 import utils.Constants.NATCASH
+import utils.Constants.REGISTER_USER
 import utils.Constants.TOPUP
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -89,6 +90,9 @@ fun GlobalBottomSheet(
                                     navigator.push(HomeScreen())
                                     sendWhatsapp()
                                 }*/
+                                if (action == REGISTER_USER){
+                                    navigator.pop()
+                                }
                                 onDismiss()
                             },
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.PRIMARY_COLOR)),

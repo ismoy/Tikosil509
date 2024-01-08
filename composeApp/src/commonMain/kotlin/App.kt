@@ -4,6 +4,6 @@ import com.tikonsil.tikonsil509.theme.AppTheme
 import ui.login.LoginScreen
 
 @Composable
-fun App() = AppTheme {
+fun App() {
   Navigator(screen = LoginScreen())
 }

@@ -21,6 +21,7 @@ object Constants  {
     const val NATCASH = "NATCASH"
     const val TOPUP = "TOPUP"
     const val PHONE_NUMBER_WHATSAPP ="+56935707687"
+    const val REGISTER_USER ="REGISTER_USER"
     fun validateEmail(email: String): Boolean {
         val emailRegex = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
         return email.matches(emailRegex.toRegex())
