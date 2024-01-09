@@ -310,7 +310,18 @@ class HomeScreen:Screen {
                                     }
                                 }
                                 3->{}
-                                1->{}
+                                1->{
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 15.dp, end = 15.dp)
+                                            .background(brush = gradientBrush),
+                                        Alignment.Center
+
+                                    ) {
+                                        Text("Last 10 pucharses", color = Color.White)
+                                    }
+                                }
                             }
                             LazyColumn(
                                 modifier = Modifier.padding(top = 30.dp)
