@@ -108,9 +108,9 @@ class  LoginScreen:Screen {
                 loginUserViewModel.loginUser(email, password)
                 loginUserViewModel.loginResponse.collect{response->
                     if (response != null) {
+                        navigator.push(HomeScreen())
                         SharedData(response).let { DataRepository.setSharedData(it) }
                     }
-                    navigator.push(HomeScreen())
                 }
             }
         }
