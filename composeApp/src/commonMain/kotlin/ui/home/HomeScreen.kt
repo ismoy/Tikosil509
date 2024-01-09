@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 import presentation.getSales.GetSalesViewModel
 import presentation.getUser.GetUserViewModel
 import ui.history.HistoryScreen
+import ui.profile.ProfileScreen
 import ui.sendRecharge.SendRechargeScreen
 import utils.Constants
 import utils.DataRepository
@@ -81,7 +82,7 @@ class HomeScreen:Screen {
             colors = listOf(startColor, centerColor, endColor))
         val coroutineScope = rememberCoroutineScope()
         val scaffoldState = rememberScaffoldState()
-        val titleDrawer = listOf("Send recharge","Shopping history","Technical support")
+        val titleDrawer = listOf("Send recharge","Shopping history","Technical support","Profile")
         val navigator = LocalNavigator.currentOrThrow
         var userResult by remember { mutableStateOf(Users()) }
         val imageUrl = userResult.image ?: "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg"
@@ -202,6 +203,8 @@ class HomeScreen:Screen {
                                         when(index){
                                             0->navigator.push(SendRechargeScreen())
                                             1->navigator.push(HistoryScreen())
+                                            2->{}
+                                            3->navigator.push(ProfileScreen())
                                         }
                                     }
                                 ,
