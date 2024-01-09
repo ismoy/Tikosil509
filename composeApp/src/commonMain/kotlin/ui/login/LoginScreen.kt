@@ -103,6 +103,18 @@ class  LoginScreen:Screen {
             }
         }
 
+        scope.launch {
+            countriesViewModel.errorCountriesResponse.collect{errorCountries->
+                if (errorCountries?.isNotEmpty()!!){
+                    title = "Error!"
+                    message = errorCountries
+                    icon = Icons.Default.Close
+                    sheetState.show()
+                }
+
+            }
+        }
+
         val loginUser = {
             scope.launch {
                 loginUserViewModel.loginUser(email, password)
