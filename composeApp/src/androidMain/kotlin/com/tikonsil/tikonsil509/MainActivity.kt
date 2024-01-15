@@ -1,6 +1,7 @@
 package com.tikonsil.tikonsil509
 
 import App
+import BaseViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             App()
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        BaseViewModel().clearViewModel()
     }
 }
 
