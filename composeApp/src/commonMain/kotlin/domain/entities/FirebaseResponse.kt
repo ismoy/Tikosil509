@@ -58,3 +58,8 @@ data class FirebaseRegisterRequest(
 data class UserResponse(
     val name:String
 )
+@Serializable
+data class UpdateTopUpResponse(
+    @SerialName("soltopup")
+    val soldTopUp:Float
+)

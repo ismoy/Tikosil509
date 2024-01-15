@@ -1,5 +1,6 @@
 package utils
 
+import BaseViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import ui.home.HomeScreen
 import utils.Constants.LAPOULA
 import utils.Constants.MONCASH
 import utils.Constants.NATCASH
@@ -90,9 +92,9 @@ fun GlobalBottomSheet(
                                     navigator.push(HomeScreen())
                                     sendWhatsapp()
                                 }*/
-                                if (action == REGISTER_USER){
+
                                     navigator.pop()
-                                }
+                                    BaseViewModel().clearViewModel()
                                 onDismiss()
                             },
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.PRIMARY_COLOR)),

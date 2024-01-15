@@ -2,6 +2,7 @@ package utils
 
 import domain.entities.SharedCountriesData
 import domain.entities.SharedData
+import domain.entities.SharedProductData
 import domain.entities.SharedUsersData
 
 object DataRepository {
@@ -33,15 +34,15 @@ object DataCountryShared{
     }
 }
 
-/*object DataProductShared{
-    private var sharedProductData:SharedProductData?=null
+object DataProductShared{
+    private var sharedProductData: SharedProductData?=null
     fun setSharedProductData(productData: SharedProductData){
         sharedProductData = productData
     }
     fun getSharedProductData():SharedProductData?{
         return sharedProductData
     }
-}*/
+}
 
 /*object DataFirebaseApisShared{
     private var sharedFirebaseApisData:SharedFirebaseApisData?=null

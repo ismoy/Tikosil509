@@ -361,7 +361,7 @@ class HomeScreen:Screen {
                                                     Spacer(modifier = Modifier.width(8.dp))
                                                     Text(sale.typeRecharge ?: "", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                                     Spacer(modifier = Modifier.width(8.dp))
-                                                    Text("${sale.currency}", fontSize = 14.sp)
+                                                    Text("${sale.currency}${sale.subtotal}", fontSize = 14.sp)
                                                     Spacer(modifier = Modifier.width(8.dp))
                                                     Text(sale.date ?: "", fontSize = 14.sp)
                                                 }
