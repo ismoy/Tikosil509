@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 import presentation.getCostProductProvider.GetCostProductProviderViewModel
 import presentation.sendSales.SendSalesViewModel
 import ui.payment.PaymentMethodScreen
+import utils.ChipGroupSingleChoice
 import utils.CircleProgressBar
 import utils.Constants
 import utils.Constants.PRIMARY_COLOR
@@ -72,6 +73,7 @@ import utils.GlobalBottomSheet
 import utils.ManageMultipleClick
 import utils.ProgressBarState
 import utils.ValidatorSendRecharge
+import utils.roundTo2DecimalPlaces
 import utils.takeValueForTopUp
 
 class SendRechargeScreen:Screen {
@@ -122,7 +124,10 @@ class SendRechargeScreen:Screen {
         ) }
         var btnText by remember { mutableStateOf("Send recharge") }
         val progressBarState = remember { ProgressBarState() }
-
+        var selectedChip: String by remember { mutableStateOf("") }
+        var amount by remember { mutableStateOf("") }
+        var subtotal by remember { mutableStateOf(0.0) }
+        var description by remember { mutableStateOf("") }
         val clickSendTopUpRecharge ={
             btnText = ""
             progressBarState.show()
@@ -280,75 +285,86 @@ class SendRechargeScreen:Screen {
                             }
                         }
 
-
-                        if (loadsCostInnoverit.isNotEmpty()) {
-                            // Filtrar los datos para el nuevo país seleccionado
-                            val filteredForSelectedCountry = loadsCostInnoverit.filter {
-                                it.country == selectedCountryCode
+                        // Colocando el grupo de chips en tu pantalla
+                        if (selectedCountry == "Haiti") {
+                            Column {
+                                ChipGroupSingleChoice { newSelectedChip ->
+                                    selectedChip = newSelectedChip
+                                }
                             }
-                            // Lógica para habilitar/deshabilitar y actualizar el texto del OutlinedTextField
-                            val isRecargaDisponible = filteredForSelectedCountry.isNotEmpty()
-                            val label = if (isRecargaDisponible) "Seleccione un operador" else "No hay recargas disponibles para el país seleccionado"
-                            val textFieldValue = if (isRecargaDisponible) selectedCost ?: "" else ""
+                        }
 
-                            val newLoadsCostInnoveritPair by derivedStateOf {
-                                loadsCostInnoverit.filter { it.country == selectedCountryCode }
-                                    .map {
-                                        CostInnoveritDetails(
-                                            formatPrice = it.formatPrice,
-                                            idProduct = it.idProduct,
-                                            operatorName = it.operatorName
-                                        )
-                                    }
+                        if (selectedChip.isEmpty()){
+                            if (loadsCostInnoverit.isNotEmpty()) {
+                                // Filtrar los datos para el nuevo país seleccionado
+                                val filteredForSelectedCountry = loadsCostInnoverit.filter {
+                                    it.country == selectedCountryCode
+                                }
+                                // Lógica para habilitar/deshabilitar y actualizar el texto del OutlinedTextField
+                                val isRecargaDisponible = filteredForSelectedCountry.isNotEmpty()
+                                val label = if (isRecargaDisponible) "Seleccione un operador" else "No hay recargas disponibles para el país seleccionado"
+                                val textFieldValue = if (isRecargaDisponible) selectedCost ?: "" else ""
 
-                            }
+                                val newLoadsCostInnoveritPair by derivedStateOf {
+                                    loadsCostInnoverit.filter { it.country == selectedCountryCode }
+                                        .map {
+                                            CostInnoveritDetails(
+                                                formatPrice = it.formatPrice,
+                                                idProduct = it.idProduct,
+                                                operatorName = it.operatorName
+                                            )
+                                        }
 
-
-
-                            Box(Modifier.clickable(enabled = isRecargaDisponible) { expandedCost = true }.padding(top = 10.dp)) {
-                                OutlinedTextField(
-                                    value = textFieldValue,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(label) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    trailingIcon = {
-                                        if (isRecargaDisponible) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCost)
-                                    },
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        backgroundColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(PRIMARY_COLOR)
-                                    ),
-                                    enabled = isRecargaDisponible
-                                )
+                                }
 
 
-                                DropdownMenu(
-                                    expanded = expandedCost,
-                                    onDismissRequest = { expandedCost = false },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = 200.dp)
-                                ) {
-                                    newLoadsCostInnoveritPair.forEach { item ->
-                                        DropdownMenuItem(onClick = {
-                                            val result = takeValueForTopUp(item.formatPrice)
-                                            if (result != null) {
-                                                selectedPriceTopUp = result
+
+                                Box(Modifier.clickable(enabled = isRecargaDisponible) { expandedCost = true }.padding(top = 10.dp)) {
+                                    OutlinedTextField(
+                                        value = textFieldValue,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text(label) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            if (isRecargaDisponible) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCost)
+                                        },
+                                        colors = TextFieldDefaults.textFieldColors(
+                                            backgroundColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(PRIMARY_COLOR)
+                                        ),
+                                        enabled = isRecargaDisponible
+                                    )
+
+
+                                    DropdownMenu(
+                                        expanded = expandedCost,
+                                        onDismissRequest = { expandedCost = false },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(max = 200.dp)
+                                    ) {
+                                        newLoadsCostInnoveritPair.forEach { item ->
+                                            DropdownMenuItem(onClick = {
+                                                val result = takeValueForTopUp(item.formatPrice)
+                                                if (result != null) {
+                                                    selectedPriceTopUp = result
+                                                }
+                                                selectedIdProduct = item.idProduct
+                                                selectedCost = item.formatPrice
+                                                selectedOperator = item.operatorName
+                                                expandedCost = false
+                                            }) {
+                                                Text(item.formatPrice)
                                             }
-                                            selectedIdProduct = item.idProduct
-                                            selectedCost = item.formatPrice
-                                            selectedOperator = item.operatorName
-                                            expandedCost = false
-                                        }) {
-                                            Text(item.formatPrice)
                                         }
                                     }
                                 }
+
                             }
 
-                        }
 
+                        }
 
                         Text("Phone", modifier = Modifier.padding(top = 10.dp))
                         Row(modifier = Modifier
@@ -396,6 +412,58 @@ class SendRechargeScreen:Screen {
                                 Text("")
                             }
                         }
+                        if (selectedChip.isNotEmpty()){
+                            Text("Amount", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = amount,
+                                    onValueChange = {
+                                        amount=it
+                                        subtotal = (amount.toDouble()/12.4)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                            Text("Subtotal", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = subtotal.roundTo2DecimalPlaces().toString(),
+                                    readOnly = true,
+                                    onValueChange = {},
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                            Text("Description", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = description,
+                                    onValueChange = {description =it  },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                        }
+
 
                         Spacer( modifier = Modifier.padding(top = 20.dp))
                         Button(onClick = {
