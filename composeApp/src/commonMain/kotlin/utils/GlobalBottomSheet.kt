@@ -1,6 +1,7 @@
 package utils
 
 import BaseViewModel
+import WhatsAppLinkOpener
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,13 +50,13 @@ fun GlobalBottomSheet(
     content: @Composable () -> Unit
 ) {
     val navigator = LocalNavigator.currentOrThrow
-   // val whatsAppLinkOpener by remember { mutableStateOf(WhatsAppLinkOpener()) }
-    /*val sendWhatsapp = {
+    val whatsAppLinkOpener by remember { mutableStateOf(WhatsAppLinkOpener()) }
+    val sendWhatsapp = {
         whatsAppLinkOpener.openWhatsApp(
             Constants.PHONE_NUMBER_WHATSAPP,
             "Hola estoy probando"
         )
-    }*/
+    }
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
@@ -88,13 +89,13 @@ fun GlobalBottomSheet(
                     ) {
                         Button(
                             onClick = {
-                                /*if (action == MONCASH || action == NATCASH || action == LAPOULA || action == TOPUP) {
+                                if (action == MONCASH || action == NATCASH || action == LAPOULA || action == TOPUP) {
                                     navigator.push(HomeScreen())
                                     sendWhatsapp()
-                                }*/
-
+                                }else{
                                     navigator.pop()
                                     BaseViewModel().clearViewModel()
+                                }
                                 onDismiss()
                             },
                             colors = ButtonDefaults.buttonColors(backgroundColor = Color(Constants.PRIMARY_COLOR)),

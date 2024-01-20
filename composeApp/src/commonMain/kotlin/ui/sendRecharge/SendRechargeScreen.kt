@@ -1,6 +1,5 @@
 package ui.sendRecharge
 
-import BaseViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,26 +51,32 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import data.dataSource.SendTopUpRecharge
 import data.repositories.getCostProductProvider.GetCostProductProviderRepository
 import data.repositories.sendSales.SendSalesRepository
-import domain.entities.CostProductProvider
 import domain.entities.CostInnoveritDetails
+import domain.entities.CostProductProvider
 import domain.entities.Sales
 import domain.useCase.getCostProductProvider.GetCostProductProviderUseCase
 import domain.useCase.sendSales.SendSalesUseCase
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import presentation.getCostProductProvider.GetCostProductProviderViewModel
 import presentation.sendSales.SendSalesViewModel
 import ui.payment.PaymentMethodScreen
+import utils.ChipGroupSingleChoice
 import utils.CircleProgressBar
 import utils.Constants
+import utils.Constants.LAPOULA
+import utils.Constants.MONCASH
+import utils.Constants.NATCASH
 import utils.Constants.PRIMARY_COLOR
 import utils.Constants.TOPUP
+import utils.Constants.getCurrentDateTime
+import utils.Constants.removeSlashesAndSpaces
 import utils.DataCountryShared
 import utils.DataRepository
 import utils.GlobalBottomSheet
 import utils.ManageMultipleClick
 import utils.ProgressBarState
 import utils.ValidatorSendRecharge
+import utils.roundTo2DecimalPlaces
 import utils.takeValueForTopUp
 
 class SendRechargeScreen:Screen {
@@ -122,7 +127,10 @@ class SendRechargeScreen:Screen {
         ) }
         var btnText by remember { mutableStateOf("Send recharge") }
         val progressBarState = remember { ProgressBarState() }
-
+        var selectedChip: String by remember { mutableStateOf("") }
+        var amount by remember { mutableStateOf("") }
+        var subtotal by remember { mutableStateOf(0.0) }
+        var description by remember { mutableStateOf("") }
         val clickSendTopUpRecharge ={
             btnText = ""
             progressBarState.show()
@@ -200,6 +208,33 @@ class SendRechargeScreen:Screen {
               if (salesResponse!=null){
                   sendSalesViewModel.clearViewModel()
               }
+            }
+        }
+        val sendMonCashNatCash ={
+            btnText = ""
+            progressBarState.show()
+            val sales = Sales(selectedCountryCode,selectedCountry,
+                getCurrentDateTime(),description,"",sendTopUpRecharge.userInfoData.value?.data?.email,
+                sendTopUpRecharge.userInfoData.value?.data?.firstname, sendTopUpRecharge.userInfoData.value?.data?.id,null,selectedFlag,
+                sendTopUpRecharge.userInfoData.value?.data?.lastname,phone, sendTopUpRecharge.userInfoData.value?.data?.role,
+                null,null,null,1,subtotal,null,selectedChip)
+            when(selectedChip){
+                MONCASH, NATCASH, LAPOULA->{
+                    sendSalesViewModel.sendSales(sales,sendTopUpRecharge.data.value?.data?.idToken.toString(),
+                        "${sendTopUpRecharge.userInfoData.value?.data?.id.toString()}${
+                            removeSlashesAndSpaces(getCurrentDateTime())}${selectedChip}")
+                }
+            }
+        }
+        scope.launch {
+            sendSalesViewModel.sendSalesResponse.collect{
+                if (it!=null){
+                    sheetState.show()
+                    title = "success!"
+                    icon = Icons.Default.Check
+                    message = "Gracias por su compra. Envíanos un WhatsApp al siguiente número para confirmar tu compra más rápido"
+                }
+
             }
         }
 
@@ -280,75 +315,86 @@ class SendRechargeScreen:Screen {
                             }
                         }
 
-
-                        if (loadsCostInnoverit.isNotEmpty()) {
-                            // Filtrar los datos para el nuevo país seleccionado
-                            val filteredForSelectedCountry = loadsCostInnoverit.filter {
-                                it.country == selectedCountryCode
+                        // Colocando el grupo de chips en tu pantalla
+                        if (selectedCountry == "Haiti") {
+                            Column {
+                                ChipGroupSingleChoice { newSelectedChip ->
+                                    selectedChip = newSelectedChip
+                                }
                             }
-                            // Lógica para habilitar/deshabilitar y actualizar el texto del OutlinedTextField
-                            val isRecargaDisponible = filteredForSelectedCountry.isNotEmpty()
-                            val label = if (isRecargaDisponible) "Seleccione un operador" else "No hay recargas disponibles para el país seleccionado"
-                            val textFieldValue = if (isRecargaDisponible) selectedCost ?: "" else ""
+                        }
 
-                            val newLoadsCostInnoveritPair by derivedStateOf {
-                                loadsCostInnoverit.filter { it.country == selectedCountryCode }
-                                    .map {
-                                        CostInnoveritDetails(
-                                            formatPrice = it.formatPrice,
-                                            idProduct = it.idProduct,
-                                            operatorName = it.operatorName
-                                        )
-                                    }
+                        if (selectedChip.isEmpty()){
+                            if (loadsCostInnoverit.isNotEmpty()) {
+                                // Filtrar los datos para el nuevo país seleccionado
+                                val filteredForSelectedCountry = loadsCostInnoverit.filter {
+                                    it.country == selectedCountryCode
+                                }
+                                // Lógica para habilitar/deshabilitar y actualizar el texto del OutlinedTextField
+                                val isRecargaDisponible = filteredForSelectedCountry.isNotEmpty()
+                                val label = if (isRecargaDisponible) "Seleccione un operador" else "No hay recargas disponibles para el país seleccionado"
+                                val textFieldValue = if (isRecargaDisponible) selectedCost ?: "" else ""
 
-                            }
+                                val newLoadsCostInnoveritPair by derivedStateOf {
+                                    loadsCostInnoverit.filter { it.country == selectedCountryCode }
+                                        .map {
+                                            CostInnoveritDetails(
+                                                formatPrice = it.formatPrice,
+                                                idProduct = it.idProduct,
+                                                operatorName = it.operatorName
+                                            )
+                                        }
 
-
-
-                            Box(Modifier.clickable(enabled = isRecargaDisponible) { expandedCost = true }.padding(top = 10.dp)) {
-                                OutlinedTextField(
-                                    value = textFieldValue,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(label) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    trailingIcon = {
-                                        if (isRecargaDisponible) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCost)
-                                    },
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        backgroundColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(PRIMARY_COLOR)
-                                    ),
-                                    enabled = isRecargaDisponible
-                                )
+                                }
 
 
-                                DropdownMenu(
-                                    expanded = expandedCost,
-                                    onDismissRequest = { expandedCost = false },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = 200.dp)
-                                ) {
-                                    newLoadsCostInnoveritPair.forEach { item ->
-                                        DropdownMenuItem(onClick = {
-                                            val result = takeValueForTopUp(item.formatPrice)
-                                            if (result != null) {
-                                                selectedPriceTopUp = result
+
+                                Box(Modifier.clickable(enabled = isRecargaDisponible) { expandedCost = true }.padding(top = 10.dp)) {
+                                    OutlinedTextField(
+                                        value = textFieldValue,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text(label) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            if (isRecargaDisponible) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCost)
+                                        },
+                                        colors = TextFieldDefaults.textFieldColors(
+                                            backgroundColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(PRIMARY_COLOR)
+                                        ),
+                                        enabled = isRecargaDisponible
+                                    )
+
+
+                                    DropdownMenu(
+                                        expanded = expandedCost,
+                                        onDismissRequest = { expandedCost = false },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(max = 200.dp)
+                                    ) {
+                                        newLoadsCostInnoveritPair.forEach { item ->
+                                            DropdownMenuItem(onClick = {
+                                                val result = takeValueForTopUp(item.formatPrice)
+                                                if (result != null) {
+                                                    selectedPriceTopUp = result
+                                                }
+                                                selectedIdProduct = item.idProduct
+                                                selectedCost = item.formatPrice
+                                                selectedOperator = item.operatorName
+                                                expandedCost = false
+                                            }) {
+                                                Text(item.formatPrice)
                                             }
-                                            selectedIdProduct = item.idProduct
-                                            selectedCost = item.formatPrice
-                                            selectedOperator = item.operatorName
-                                            expandedCost = false
-                                        }) {
-                                            Text(item.formatPrice)
                                         }
                                     }
                                 }
+
                             }
 
-                        }
 
+                        }
 
                         Text("Phone", modifier = Modifier.padding(top = 10.dp))
                         Row(modifier = Modifier
@@ -396,11 +442,65 @@ class SendRechargeScreen:Screen {
                                 Text("")
                             }
                         }
+                        if (selectedChip.isNotEmpty()){
+                            Text("Amount", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = amount,
+                                    onValueChange = {
+                                        amount=it
+                                        subtotal = (amount.toDouble()/12.4)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                            Text("Subtotal", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = subtotal.roundTo2DecimalPlaces().toString(),
+                                    readOnly = true,
+                                    onValueChange = {},
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                            Text("Description", modifier = Modifier.padding(top = 10.dp))
+                            Box(modifier = Modifier.fillMaxWidth()){
+                                OutlinedTextField(
+                                    value = description,
+                                    onValueChange = {description =it  },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        textColor = Color.Black,
+                                        focusedIndicatorColor = Color(PRIMARY_COLOR),
+                                        backgroundColor = Color.Transparent
+                                    )
+                                )
+                            }
+                        }
+
 
                         Spacer( modifier = Modifier.padding(top = 20.dp))
                         Button(onClick = {
                             manageMultipleClick.manageMultipleClickVoyagerTransition {
-                                if (sendTopUpRecharge.userInfoData.value?.data?.role == 2){
+                                if (sendTopUpRecharge.userInfoData.value?.data?.role == 2 && selectedChip.isNotEmpty()){
+                                    sendMonCashNatCash()
+                                }else{
                                     clickSendTopUpRecharge()
                                 }
                             }
