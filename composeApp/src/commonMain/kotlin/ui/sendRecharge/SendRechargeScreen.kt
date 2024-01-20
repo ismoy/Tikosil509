@@ -1,6 +1,5 @@
 package ui.sendRecharge
 
-import BaseViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,12 +51,11 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import data.dataSource.SendTopUpRecharge
 import data.repositories.getCostProductProvider.GetCostProductProviderRepository
 import data.repositories.sendSales.SendSalesRepository
-import domain.entities.CostProductProvider
 import domain.entities.CostInnoveritDetails
+import domain.entities.CostProductProvider
 import domain.entities.Sales
 import domain.useCase.getCostProductProvider.GetCostProductProviderUseCase
 import domain.useCase.sendSales.SendSalesUseCase
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import presentation.getCostProductProvider.GetCostProductProviderViewModel
 import presentation.sendSales.SendSalesViewModel
@@ -65,8 +63,13 @@ import ui.payment.PaymentMethodScreen
 import utils.ChipGroupSingleChoice
 import utils.CircleProgressBar
 import utils.Constants
+import utils.Constants.LAPOULA
+import utils.Constants.MONCASH
+import utils.Constants.NATCASH
 import utils.Constants.PRIMARY_COLOR
 import utils.Constants.TOPUP
+import utils.Constants.getCurrentDateTime
+import utils.Constants.removeSlashesAndSpaces
 import utils.DataCountryShared
 import utils.DataRepository
 import utils.GlobalBottomSheet
@@ -205,6 +208,33 @@ class SendRechargeScreen:Screen {
               if (salesResponse!=null){
                   sendSalesViewModel.clearViewModel()
               }
+            }
+        }
+        val sendMonCashNatCash ={
+            btnText = ""
+            progressBarState.show()
+            val sales = Sales(selectedCountryCode,selectedCountry,
+                getCurrentDateTime(),description,"",sendTopUpRecharge.userInfoData.value?.data?.email,
+                sendTopUpRecharge.userInfoData.value?.data?.firstname, sendTopUpRecharge.userInfoData.value?.data?.id,null,selectedFlag,
+                sendTopUpRecharge.userInfoData.value?.data?.lastname,phone, sendTopUpRecharge.userInfoData.value?.data?.role,
+                null,null,null,1,subtotal,null,selectedChip)
+            when(selectedChip){
+                MONCASH, NATCASH, LAPOULA->{
+                    sendSalesViewModel.sendSales(sales,sendTopUpRecharge.data.value?.data?.idToken.toString(),
+                        "${sendTopUpRecharge.userInfoData.value?.data?.id.toString()}${
+                            removeSlashesAndSpaces(getCurrentDateTime())}${selectedChip}")
+                }
+            }
+        }
+        scope.launch {
+            sendSalesViewModel.sendSalesResponse.collect{
+                if (it!=null){
+                    sheetState.show()
+                    title = "success!"
+                    icon = Icons.Default.Check
+                    message = "Gracias por su compra. Envíanos un WhatsApp al siguiente número para confirmar tu compra más rápido"
+                }
+
             }
         }
 
@@ -468,7 +498,9 @@ class SendRechargeScreen:Screen {
                         Spacer( modifier = Modifier.padding(top = 20.dp))
                         Button(onClick = {
                             manageMultipleClick.manageMultipleClickVoyagerTransition {
-                                if (sendTopUpRecharge.userInfoData.value?.data?.role == 2){
+                                if (sendTopUpRecharge.userInfoData.value?.data?.role == 2 && selectedChip.isNotEmpty()){
+                                    sendMonCashNatCash()
+                                }else{
                                     clickSendTopUpRecharge()
                                 }
                             }
