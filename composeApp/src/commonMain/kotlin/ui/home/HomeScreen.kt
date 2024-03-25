@@ -359,12 +359,11 @@ class HomeScreen:Screen {
                                                             .clip(RectangleShape)
                                                     )
                                                     Spacer(modifier = Modifier.width(8.dp))
-                                                    Text(sale.typeRecharge ?: "", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                                    Text(sale.typeRecharge ?: "", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                                     Spacer(modifier = Modifier.width(8.dp))
-                                                    Text("${sale.currency}${
-                                                        sale.subtotal?.roundTo2DecimalPlaces().toString()}", fontSize = 10.sp)
+                                                    Text("${sale.currency}${sale.subtotal}", fontSize = 14.sp)
                                                     Spacer(modifier = Modifier.width(8.dp))
-                                                    Text(sale.date ?: "", fontSize = 10.sp)
+                                                    Text(sale.date ?: "", fontSize = 14.sp)
                                                 }
                                             }
                                         }
