@@ -68,7 +68,7 @@ class  LoginScreen:Screen {
     @OptIn(ExperimentalMaterialApi::class, ExperimentalResourceApi::class)
     @Composable
     override fun Content() {
-        var email by remember { mutableStateOf("belizairemoy@gmail.com") }
+        var email by remember { mutableStateOf("belizairesmoy72@gmail.com") }
         var password by remember { mutableStateOf("123456") }
         val passwordVisible by remember { mutableStateOf(false) }
         val navigator = LocalNavigator.currentOrThrow

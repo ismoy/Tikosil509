@@ -3,7 +3,6 @@ package utils
 import BaseViewModel
 import WhatsAppLinkOpener
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,8 +64,6 @@ fun GlobalBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
-                    .clickable {  }
-                    .background(Color.Black.copy(alpha = 0.5f))
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(MaterialTheme.colors.surface),
                 contentAlignment = Alignment.Center

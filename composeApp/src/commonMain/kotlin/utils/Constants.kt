@@ -13,7 +13,7 @@ object Constants  {
     const val PRIMARY_COLOR = 0xFFF9A826
     const val CENTRAL_COLOR = 0xFFAEDEF4
     const val COLOR_HISTORY = 0xFFF2F7FF
-    const val BASE_URL_TIKONSIL = "https://www.tikonsil509.com/"
+    const val BASE_URL_TIKONSIL = "https://tikonsil509.com/"
     const val END_POINT_STRIPE = "api/payment/stripe"
     const val KEY_STRIPE = "Bearer yT32cWocNpldrR=9ERnAvCtg/aon&D"
     const val LAPOULA ="LAPOULA"
