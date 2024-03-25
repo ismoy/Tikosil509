@@ -158,7 +158,7 @@ class SendRechargeScreen:Screen {
         scope.launch {
             sendTopUpRecharge.isTopUpSend.collect{result->
                 val sales = Sales(selectedCountryCode,selectedCountry,
-                    Constants.getCurrentDateTime(),null,"USD",sendTopUpRecharge.userInfoData.value?.data?.email,
+                    getCurrentDateTime(),null,"USD",sendTopUpRecharge.userInfoData.value?.data?.email,
                     sendTopUpRecharge.userInfoData.value?.data?.firstname, sendTopUpRecharge.userInfoData.value?.data?.id,selectedIdProduct?.toInt(),selectedFlag,
                     sendTopUpRecharge.userInfoData.value?.data?.lastname,phone, sendTopUpRecharge.userInfoData.value?.data?.role,
                     selectedPriceTopUp.toString(),null,null,1,selectedPriceTopUp.toString().toDouble(),null,selectedOperator)
@@ -171,7 +171,7 @@ class SendRechargeScreen:Screen {
                     progressBarState.hide()
                     btnText = "Send recharge"
                     sendSalesViewModel.sendSales(sales,sendTopUpRecharge.data.value?.data?.idToken.toString(),"${sendTopUpRecharge.userInfoData.value?.data?.id}${selectedIdProduct}${
-                        Constants.removeSlashesAndSpaces(Constants.getCurrentDateTime())
+                        removeSlashesAndSpaces(getCurrentDateTime())
                     }")
                 }
 
@@ -198,8 +198,6 @@ class SendRechargeScreen:Screen {
                     icon = Icons.Default.Close
                     message = "No tienes suficiente de fondos para realizar la compra"
 
-                }else{
-                    navigator.push(PaymentMethodScreen())
                 }
             }
         }
@@ -235,6 +233,13 @@ class SendRechargeScreen:Screen {
                     message = "Gracias por su compra. Envíanos un WhatsApp al siguiente número para confirmar tu compra más rápido"
                 }
 
+            }
+        }
+        scope.launch {
+            sendTopUpRecharge.isPaymentTopUpAgent.collect{isAgent->
+                if (isAgent!=null){
+                    navigator.push(PaymentMethodScreen())
+                }
             }
         }
 
@@ -316,7 +321,7 @@ class SendRechargeScreen:Screen {
                         }
 
                         // Colocando el grupo de chips en tu pantalla
-                        if (selectedCountry == "Haiti") {
+                        if (selectedCountry == "Haiti" && sendTopUpRecharge.userInfoData.value?.data?.role ==2) {
                             Column {
                                 ChipGroupSingleChoice { newSelectedChip ->
                                     selectedChip = newSelectedChip
