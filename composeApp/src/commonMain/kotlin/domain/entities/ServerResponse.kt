@@ -21,8 +21,3 @@ data class RechargeErrorResponse(
     @SerialName("error_code")
     val errorCode: Int?=null
 )
-@Serializable
-data class StripePaymentResponse(
-    val status: String ,
-    val message:String
-)
