@@ -12,8 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -43,7 +41,8 @@ class SendTopUpRecharge{
     ) }
     private var _isTopUpNotSend = MutableStateFlow("")
     val isTopUpNotSend = _isTopUpNotSend.asStateFlow()
-
+    private var _isPaymentTopUpAgent = MutableStateFlow<Boolean?>(null)
+    val isPaymentTopUpAgent = _isPaymentTopUpAgent.asSharedFlow()
 
 
 
@@ -74,6 +73,9 @@ class SendTopUpRecharge{
                 currentDateTime,0,countrySelected,users?.image.toString(),
                 topUpSelected,subTotalSelected,"")
             DataProductShared.setSharedProductData(SharedProductData(product))
+          scope.launch {
+              _isPaymentTopUpAgent.emit(true)
+          }
         }
     }
 
